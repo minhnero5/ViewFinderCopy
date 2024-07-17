@@ -45,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
         right.Normalize();
 
         // Tính toán hướng di chuyển cuối cùng
-        Vector3 adjustedMove = forward * move.z + right * move.x;
+        Vector3 adjustedMove = cameraTransform.forward.normalized * move.z + right * move.x;
 
         // Áp dụng di chuyển tới vị trí của nhân vật
         transform.position += adjustedMove * speed * Time.deltaTime;
