@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using UnityEngine.Rendering.PostProcessing;
+using Unity.VisualScripting;
 
 public class CameraPhoto : MonoBehaviour
 {
@@ -17,6 +19,11 @@ public class CameraPhoto : MonoBehaviour
     private InputAction photoAction;
     private InputAction switchCamAction;
     private Texture2D photoTexture;
+
+    public PostProcessVolume postVolume;
+    private DepthOfField depthOfField;
+    private float defaulFov;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +33,9 @@ public class CameraPhoto : MonoBehaviour
         switchCamAction = photoInput.actions.FindAction("SwitchCam");
         photoAction.performed += ctx => TakeAShot();
         switchCamAction.performed += ctx => SwitchCamera();
+
+        postVolume.profile.TryGetSettings(out depthOfField);
+        defaulFov = playerCam.GetComponent<Camera>().fieldOfView;
     }
 
     private void OnDestroy()
