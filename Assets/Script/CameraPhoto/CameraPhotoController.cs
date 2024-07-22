@@ -15,12 +15,12 @@ public class CameraPhotoController : MonoBehaviour
     public GameObject photoPrefab; // Prefab của đối tượng hiển thị ảnh chụp
     public Transform photoContainer; // Container để chứa các ảnh chụp
     public float photoAnimationDuration = 1f; // Thời gian animation
+    public float spacing = 10f; // Khoảng cách giữa các ảnh chụp
 
     private PlayerInput playerInput;
     private InputAction photoAction;
     private InputAction switchCameraAction;
     private bool isPhotoMode = false;
-    private int photoCount = 0;
 
     void Start()
     {
@@ -83,28 +83,20 @@ public class CameraPhotoController : MonoBehaviour
         mainCamera.targetTexture = null;
 
         // Tạo đối tượng mới để hiển thị ảnh chụp
-        GameObject newPhoto = Instantiate(photoPrefab, photoContainer);
+        GameObject newPhoto = Instantiate(photoPrefab);
         newPhoto.GetComponent<RawImage>().texture = screenShot;
 
-        // Đặt vị trí ban đầu của ảnh chụp tại vị trí của photoFrame
+        // Đặt vị trí ban đầu của ảnh chụp tại giữa màn hình
         RectTransform newPhotoRect = newPhoto.GetComponent<RectTransform>();
         newPhotoRect.SetParent(photoFrame.transform, false);
         newPhotoRect.anchoredPosition = Vector2.zero;
 
-        // Di chuyển ảnh đến vị trí trong container
+        // Di chuyển ảnh từ giữa màn hình đến vị trí đầu tiên trong container
         newPhotoRect.SetParent(photoContainer, true);
-        newPhotoRect.DOAnchorPos(Vector2.zero, photoAnimationDuration).SetEase(Ease.OutBounce).OnComplete(() =>
+        newPhotoRect.DOAnchorPos(Vector2.zero, photoAnimationDuration).SetEase(Ease.OutQuad).OnComplete(() =>
         {
-            // Đẩy các ảnh cũ sang bên phải để tạo chỗ cho ảnh mới
-            foreach (Transform child in photoContainer)
-            {
-                if (child == newPhoto.transform) continue;
-                RectTransform childRect = child.GetComponent<RectTransform>();
-                childRect.DOAnchorPosX(childRect.anchoredPosition.x + newPhotoRect.sizeDelta.x, photoAnimationDuration).SetEase(Ease.OutBounce);
-            }
+            // Đảm bảo ảnh mới được thêm vào và layout được cập nhật
+            LayoutRebuilder.ForceRebuildLayoutImmediate(photoContainer.GetComponent<RectTransform>());
         });
-
-        // Bật lại khung ảnh sau khi chụp
-        photoFrame.SetActive(true);
     }
 }
